@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chating page</title>
+</head>
+<body>
+    <div id="logIn">
+        <input type="text" id="userName">
+        <button onclick="logIn()">log in</button>
+    </div>
+
+    <div id="chatOptions">
+        <input type="text" id="roomId">
+        <button onclick="joinRoom()">Join Room</button>
+        <button onclick="createRoom()">Creat Room</button>
+    </div>
+
+    <div id="chatConversation">
+        <h1 id="title">Room ID</h1>
+        <input type="text" id="msgText">
+        <button onclick="sendMsg()">send</button>
+        <div id="conv">
+            
+        </div>
+    </div>
+    
+
+    <script>
+        
+
+        // creating websocket
+        const ws = new WebSocket("ws://localhost:3000");
+        let roomid = "";
+        let from = "";
+
+        function logIn() {
+            let username = userName.value;
+
+            from = username;
+
+            let msg = `{"func" : "login", "username" : "${username}"}`;
+
+            ws.send(msg);
+
+            document.getElementById("logIn").innerHTML = "";
+        }
+
+
+        function createRoom() {
+            let msg = `{"func" : "createroom"}`;
+
+            ws.send(msg);
+
+            document.getElementById("chatOptions").innerHTML = "";
+        }
+
+
+        function joinRoom() {
+            let msg = `{"func" : "joinroom", "roomid" : "${roomId.value}"}`;
+
+            ws.send(msg);
+
+            roomid = roomId.value;
+
+            document.getElementById("chatOptions").innerHTML = "";
+
+            document.getElementById("title").innerHTML = roomid;
+
+        }
+
+
+        function sendMsg() {
+
+            let msg = `{"func" : "sendmsg", "roomid" : "${roomid}", "from" : "${from}", "msg"
+             : "${msgText.value}"}`;
+
+
+             ws.send(msg);
+
+        }
+
+        ws.onmessage = (msg) => {
+            let msgObj = JSON.parse(msg.data);
+
+            if (msgObj.type == "roomid") {
+
+                roomid = msgObj.roomid;
+
+                document.getElementById("title").innerHTML = roomid;
+
+            } 
+
+
+            if (msgObj.type == "msg") {
+                let text = document.createTextNode(`${msgObj.from} : ${msgObj.msg}`);
+
+                let paragraph = document.createElement("p");
+
+                paragraph.appendChild(text);
+
+                document.getElementById("conv").appendChild(paragraph);
+            }
+        };
+
+    </script>
+</body>
+</html>
