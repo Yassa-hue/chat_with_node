@@ -2,12 +2,34 @@ const http = require('http');
 const WebSocketServer = require('websocket').server;
 
 
+const fs = require('fs'),
+    path = require('path'),    
+    filePath = path.join(__dirname, 'chat.html');
+
+
 
 
 
 const app = http.createServer((req, res) => {
     console.log("there is a req on the server :)");
-    res.end();
+
+    fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
+        if (!err) {
+            
+            res.writeHead(200, {'Content-Type': 'text/html'});
+            res.write(data);
+            
+            res.end();
+
+        } else {
+
+            console.log(err);
+            res.end();
+            
+        }
+    });
+
+
 });
 
 
