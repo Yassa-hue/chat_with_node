@@ -78,54 +78,101 @@ websocket.on("request", (req) => {
         let msgObj = JSON.parse(msg.utf8Data);
         
         
-        if (msgObj.func == "login") {
-            
-            conn.username = msgObj.username;
-
-            conPool[msgObj.username] = conn;
-
-            console.log(`user ${conn.username} logged in :)`);
-
-        }
-
-        if (msgObj.func == "createroom") {
-            
-            let randomRoomId = genRoomId();
-
-            roomPool[randomRoomId] = {};
-
-            roomPool[randomRoomId][conn.username] = conn;
-
-            let retMsg = `{"type" : "roomid", "roomid" : "${randomRoomId}"}`;
-
-            conn.sendUTF(retMsg);
-
-            console.log(`user ${conn.username} created room : ${randomRoomId}`);
-
-        }
+        try {
 
 
-        if (msgObj.func == "joinroom") {
-            
-            roomPool[msgObj.roomid][conn.username] = conn;
+            if (msgObj.func == "login") {
 
-            console.log(`user ${conn.username} joint room : ${msgObj.roomid}`);
+                    if (msgObj.username == null || msgObj.username == "") {
+                        throw Error("invalid user name");
+                    }
+                
+                    conn.username = msgObj.username;
 
-        }
+                    conPool[msgObj.username] = conn;
 
-        
-        if (msgObj.func == "sendmsg") {
+                    let retMsg = `{"type" : "login", "msg" : "user logged in"}`;
 
-            let room = roomPool[msgObj.roomid];
+                    conn.sendUTF(retMsg);
 
-            let chatMsg = `{"type" : "msg", "from" : "${msgObj.from}", "msg": "${msgObj.msg}"}`
-            
-            for (var c in room) {
+                    console.log(`user ${conn.username} logged in :)`);
 
-                room[c].sendUTF(chatMsg);
+                
+            }
+
+            if (msgObj.func == "createroom") {
+
+
+
+                if (!conn.username) {
+
+                    throw Error("you have to log in");
+
+                }
+                
+                let randomRoomId = genRoomId();
+
+                roomPool[randomRoomId] = {};
+
+                roomPool[randomRoomId][conn.username] = conn;
+
+                let retMsg = `{"type" : "roomid", "roomid" : "${randomRoomId}"}`;
+
+                conn.sendUTF(retMsg);
+
+                console.log(`user ${conn.username} created room : ${randomRoomId}`);
 
             }
 
+
+            if (msgObj.func == "joinroom") {
+
+                if (!conn.username) {
+
+                    throw Error("you have to log in");
+
+                }
+                
+                if (roomPool[msgObj.roomid] == null) {
+                    throw Error("invalid room id");
+                }
+                
+                roomPool[msgObj.roomid][conn.username] = conn;
+                console.log(`user ${conn.username} joint room : ${msgObj.roomid}`);
+
+                let retMsg = `{"type" : "join", "msg" : "joined room"}`;
+
+                conn.sendUTF(retMsg);
+            }
+
+            
+            if (msgObj.func == "sendmsg") {
+
+
+                if (!conn.username) {
+
+                    throw Error("you have to log in");
+
+                }
+                let room = roomPool[msgObj.roomid];
+
+                let chatMsg = `{"type" : "msg", "from" : "${msgObj.from}", "msg": "${msgObj.msg}"}`
+                
+                for (var c in room) {
+
+                    room[c].sendUTF(chatMsg);
+
+                }
+
+            }
+
+        } catch (e) {
+            console.log(e.message);
+
+            let errorMsg = `{"type" : "error", "msg" : "${e.message}"}`;
+
+            conn.sendUTF(errorMsg);
+            
         }
 
     });

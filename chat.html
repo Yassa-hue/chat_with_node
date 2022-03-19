@@ -8,19 +8,19 @@
 </head>
 <body>
     <div id="logIn">
-        <input type="text" id="userName">
+        <input type="text" id="userName" placeholder="user name">
         <button onclick="logIn()">log in</button>
     </div>
 
     <div id="chatOptions">
-        <input type="text" id="roomId">
+        <input type="text" id="roomId" placeholder="your room id">
         <button onclick="joinRoom()">Join Room</button>
         <button onclick="createRoom()">Creat Room</button>
     </div>
 
     <div id="chatConversation">
         <h1 id="title">Room ID</h1>
-        <input type="text" id="msgText">
+        <input type="text" id="msgText" placeholder="your text msg">
         <button onclick="sendMsg()">send</button>
         <div id="conv">
             
@@ -45,7 +45,6 @@
 
             ws.send(msg);
 
-            document.getElementById("logIn").innerHTML = "";
         }
 
 
@@ -54,7 +53,6 @@
 
             ws.send(msg);
 
-            document.getElementById("chatOptions").innerHTML = "";
         }
 
 
@@ -63,11 +61,6 @@
 
             ws.send(msg);
 
-            roomid = roomId.value;
-
-            document.getElementById("chatOptions").innerHTML = "";
-
-            document.getElementById("title").innerHTML = roomid;
 
         }
 
@@ -85,13 +78,33 @@
         ws.onmessage = (msg) => {
             let msgObj = JSON.parse(msg.data);
 
+
+            if (msgObj.type == "login") {
+                
+                document.getElementById("logIn").innerHTML = "";
+
+                alert(msgObj.msg);
+            }   
+
             if (msgObj.type == "roomid") {
 
                 roomid = msgObj.roomid;
 
+                document.getElementById("chatOptions").innerHTML = "";
+
                 document.getElementById("title").innerHTML = roomid;
 
-            } 
+            }
+
+
+            if (msgObj.type == "join") {
+
+                roomid = document.getElementById("roomId").value;
+
+                document.getElementById("chatOptions").innerHTML = "";
+
+                document.getElementById("title").innerHTML = roomid;
+            }
 
 
             if (msgObj.type == "msg") {
@@ -102,6 +115,13 @@
                 paragraph.appendChild(text);
 
                 document.getElementById("conv").appendChild(paragraph);
+            }
+
+
+            if (msgObj.type == "error") {
+
+                alert(msgObj.msg);
+
             }
         };
 
