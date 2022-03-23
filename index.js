@@ -181,11 +181,11 @@ websocket.on("request", (req) => {
 
 
 
+port_num = process.env.PORT || 5000
 
+app.listen(port_num);
 
-app.listen(3000);
-
-console.log("on port 3000");
+console.log(`on port ${port_num}`);
 
 
 
