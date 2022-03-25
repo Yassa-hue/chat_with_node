@@ -20,10 +20,13 @@
 
     <div id="chatConversation">
         <h1 id="title">Room ID</h1>
-        <input type="text" id="msgText" placeholder="your text msg">
-        <button onclick="sendMsg()">send</button>
-        <div id="conv">
+        <div id="conv" style="position: fixed; bottom: 50px; top: 120px; left: 10px; right: 10px; overflow-y: scroll;">
             
+        </div>
+
+        <div style="position: fixed; bottom: 15px;">
+            <input type="text" id="msgText" placeholder="your text msg">
+            <button onclick="sendMsg()">send</button>
         </div>
     </div>
     
@@ -31,10 +34,19 @@
     <script>
         
 
+        
+
         // creating websocket
         const ws = new WebSocket("ws://idroomschatapp.herokuapp.com");
         let roomid = "";
         let from = "";
+
+
+        function adjustHeight() {
+            const objDiv = document.getElementById("conv");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
+
 
         function logIn() {
             let username = userName.value;
@@ -72,6 +84,11 @@
 
 
              ws.send(msg);
+
+
+             document.getElementById("msgText").value = "";
+
+
 
         }
 
@@ -115,6 +132,8 @@
                 paragraph.appendChild(text);
 
                 document.getElementById("conv").appendChild(paragraph);
+
+                adjustHeight();
             }
 
 
@@ -124,6 +143,13 @@
 
             }
         };
+
+
+        document.getElementById("msgText").addEventListener("keyup", (event) => {
+            if (event.key === "Enter") {
+                sendMsg();
+            }
+        });
 
     </script>
 </body>
