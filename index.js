@@ -20,33 +20,7 @@ const logIn = require("./myModules/logIn"),
 
 
 
-// const app = http.createServer((req, res) => {
-//     console.log("there is a req on the server :)");
-
-//     fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
-//         if (!err) {
-            
-//             res.writeHead(200, {'Content-Type': 'text/html'});
-//             res.write(data);
-            
-//             res.end();
-
-//         } else {
-
-//             console.log(err);
-//             res.end();
-            
-//         }
-//     });
-
-
-// });
-
-
-const httpsServer = https.createServer({
-    cert: fs.readFileSync('./cert/cert.pem'),
-    key: fs.readFileSync('./cert/key.pem')
-}, (req, res) => {
+const app = http.createServer((req, res) => {
     console.log("there is a req on the server :)");
 
     fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
@@ -69,13 +43,39 @@ const httpsServer = https.createServer({
 });
 
 
+// const httpsServer = https.createServer({
+//     cert: fs.readFileSync('./cert/cert.pem'),
+//     key: fs.readFileSync('./cert/key.pem')
+// }, (req, res) => {
+//     console.log("there is a req on the server :)");
+
+//     fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
+//         if (!err) {
+            
+//             res.writeHead(200, {'Content-Type': 'text/html'});
+//             res.write(data);
+            
+//             res.end();
+
+//         } else {
+
+//             console.log(err);
+//             res.end();
+            
+//         }
+//     });
+
+
+// });
+
+
 
 
 
 
 const websocket = new WebSocketServer({
-    // httpServer : app
-    httpServer : httpsServer
+    httpServer : app
+    // httpServer : httpsServer
 });
 
 
@@ -158,9 +158,9 @@ websocket.on("request", (req) => {
 
 port_num = process.env.PORT || 3000
 
-httpsServer.listen(port_num);
+// httpsServer.listen(port_num);
 
-// app.listen(port_num);
+app.listen(port_num);
 
 console.log(`on port ${port_num}`);
 
