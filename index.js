@@ -7,7 +7,8 @@ const fs = require('fs'),
     filePath = path.join(__dirname, 'chat.html');
 
 
-const genRoomId = require("./myModules/genRoomId");
+const genRoomId = require("./myModules/genRoomId"),
+    logIn = require("./myModules/logIn");
 
 
 
@@ -76,20 +77,7 @@ websocket.on("request", (req) => {
 
             if (msgObj.func == "login") {
 
-                    if (msgObj.username == null || msgObj.username == "") {
-                        throw Error("invalid user name");
-                    }
-                
-                    conn.username = msgObj.username;
-
-                    conPool[msgObj.username] = conn;
-
-                    let retMsg = `{"type" : "login", "msg" : "user logged in"}`;
-
-                    conn.sendUTF(retMsg);
-
-                    console.log(`user ${conn.username} logged in :)`);
-
+                logIn(conn, msgObj, conPool);
                 
             }
 
