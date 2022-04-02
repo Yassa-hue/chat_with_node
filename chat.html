@@ -20,12 +20,13 @@
 
     <div id="chatConversation">
         <h1 id="title">Room ID</h1>
+        <h3 id="typingState">Typing status</h3>
         <div id="conv" style="position: fixed; bottom: 50px; top: 120px; left: 10px; right: 10px; overflow-y: scroll;">
             
         </div>
 
         <div style="position: fixed; bottom: 15px;">
-            <input type="text" id="msgText" placeholder="your text msg">
+            <input type="text" id="msgText" placeholder="your text msg" onkeydown="onTyping()">
             <button onclick="sendMsg()">send</button>
         </div>
     </div>
@@ -37,10 +38,34 @@
         
 
         // creating websocket
-        const ws = new WebSocket("wss://idroomschatapp.herokuapp.com");
-        //const ws = new WebSocket("wss://localhost:3000");
+        // const ws = new WebSocket("wss://idroomschatapp.herokuapp.com");
+        const ws = new WebSocket("wss://localhost:3000");
         let roomid = "";
         let from = "";
+        let rtname = "";
+
+
+        function onTyping() {
+            
+            let msg = `{"func" : "typing", "username" : "${rtname}", "roomid" : "${roomid}"}`;
+
+            
+            
+            ws.send(msg);
+            
+            // console.log(document.getElementById("msgText").value);
+            // document.getElementById("typingState").innerHTML = "typeing";
+        }
+
+
+        async function clearState () {
+            document.getElementById("typingState").innerHTML = "no one typeing";
+            setTimeout(() => clearState(), 6000);
+        }
+
+
+        setTimeout(() => clearState(), 6000);
+
 
 
         function adjustHeight() {
@@ -101,7 +126,10 @@
                 
                 document.getElementById("logIn").innerHTML = "";
 
-                alert(msgObj.msg);
+                // alert(msgObj.msg);
+
+                rtname = msgObj.userName;
+
             }   
 
             if (msgObj.type == "roomid") {
@@ -135,6 +163,13 @@
                 document.getElementById("conv").appendChild(paragraph);
 
                 adjustHeight();
+            }
+
+
+            if (msgObj.type == "typing") {
+                
+                document.getElementById("typingState").innerHTML = `${msgObj.username} is typeing ...`;
+
             }
 
 

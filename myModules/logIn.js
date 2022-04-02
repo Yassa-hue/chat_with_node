@@ -15,7 +15,7 @@ async function logIn(conn, msgObj, conPool) {
 
     conPool[msgObj.username] = conn;
 
-    let retMsg = `{"type" : "login", "msg" : "user logged in"}`;
+    let retMsg = `{"type" : "login", "msg" : "user logged in", "username" : "${msgObj.username}"}`;
 
     conn.sendUTF(retMsg);
 
