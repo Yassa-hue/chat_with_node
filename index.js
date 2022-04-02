@@ -9,7 +9,8 @@ const fs = require('fs'),
 
 const logIn = require("./myModules/logIn"),
     createRoom = require("./myModules/createRoom"),
-    joinRoom = require("./myModules/joinRoom");
+    joinRoom = require("./myModules/joinRoom"),
+    sendMsg = require("./myModules/sendMsg");
 
 
 
@@ -99,20 +100,7 @@ websocket.on("request", (req) => {
             if (msgObj.func == "sendmsg") {
 
 
-                if (!conn.username) {
-
-                    throw Error("you have to log in");
-
-                }
-                let room = roomPool[msgObj.roomid];
-
-                let chatMsg = `{"type" : "msg", "from" : "${msgObj.from}", "msg": "${msgObj.msg}"}`
-                
-                for (var c in room) {
-
-                    room[c].sendUTF(chatMsg);
-
-                }
+                sendMsg(conPool, msgObj, roomPool);
 
             }
 
