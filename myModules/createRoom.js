@@ -24,3 +24,6 @@ async function createRoom(conn, roomPool) {
 
     console.log(`user ${conn.username} created room : ${randomRoomId}`);
 }
+
+
+module.exports = createRoom;

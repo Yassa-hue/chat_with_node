@@ -8,7 +8,8 @@ const fs = require('fs'),
 
 
 const logIn = require("./myModules/logIn"),
-    createRoom = require("./myModules/createRoom");
+    createRoom = require("./myModules/createRoom"),
+    joinRoom = require("./myModules/joinRoom");
 
 
 
@@ -90,22 +91,8 @@ websocket.on("request", (req) => {
 
             if (msgObj.func == "joinroom") {
 
-                if (!conn.username) {
+                joinRoom(conn, msgObj, roomPool);
 
-                    throw Error("you have to log in");
-
-                }
-                
-                if (roomPool[msgObj.roomid] == null) {
-                    throw Error("invalid room id");
-                }
-                
-                roomPool[msgObj.roomid][conn.username] = conn;
-                console.log(`user ${conn.username} joint room : ${msgObj.roomid}`);
-
-                let retMsg = `{"type" : "join", "msg" : "joined room"}`;
-
-                conn.sendUTF(retMsg);
             }
 
             
