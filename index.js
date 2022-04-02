@@ -7,8 +7,8 @@ const fs = require('fs'),
     filePath = path.join(__dirname, 'chat.html');
 
 
-const genRoomId = require("./myModules/genRoomId"),
-    logIn = require("./myModules/logIn");
+const logIn = require("./myModules/logIn"),
+    createRoom = require("./myModules/createRoom");
 
 
 
@@ -83,26 +83,8 @@ websocket.on("request", (req) => {
 
             if (msgObj.func == "createroom") {
 
-
-
-                if (!conn.username) {
-
-                    throw Error("you have to log in");
-
-                }
+                createRoom(conn, roomPool);
                 
-                let randomRoomId = genRoomId();
-
-                roomPool[randomRoomId] = {};
-
-                roomPool[randomRoomId][conn.username] = conn;
-
-                let retMsg = `{"type" : "roomid", "roomid" : "${randomRoomId}"}`;
-
-                conn.sendUTF(retMsg);
-
-                console.log(`user ${conn.username} created room : ${randomRoomId}`);
-
             }
 
 
