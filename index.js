@@ -10,7 +10,8 @@ const fs = require('fs'),
 const logIn = require("./myModules/logIn"),
     createRoom = require("./myModules/createRoom"),
     joinRoom = require("./myModules/joinRoom"),
-    sendMsg = require("./myModules/sendMsg");
+    sendMsg = require("./myModules/sendMsg"),
+    handleError = require("./myModules/handleError");
 
 
 
@@ -62,7 +63,17 @@ websocket.on("request", (req) => {
     console.log("new conn :)");
 
 
-    conn.on("close", () => console.log("closed !!"));
+    conn.on("close", () => {
+        
+        if (conn.username) {
+            conPool[conn.username] = null;
+        }
+        
+        console.log("closed !!")
+    
+    });
+
+
     conn.on("onopen", () => console.log("opened !!"));
 
 
@@ -74,43 +85,31 @@ websocket.on("request", (req) => {
         let msgObj = JSON.parse(msg.utf8Data);
         
         
-        try {
+        if (msgObj.func == "login") {
 
-
-            if (msgObj.func == "login") {
-
-                logIn(conn, msgObj, conPool);
-                
-            }
-
-            if (msgObj.func == "createroom") {
-
-                createRoom(conn, roomPool);
-                
-            }
-
-
-            if (msgObj.func == "joinroom") {
-
-                joinRoom(conn, msgObj, roomPool);
-
-            }
-
+            logIn(conn, msgObj, conPool).catch((e) => handleError(e, conn));
             
-            if (msgObj.func == "sendmsg") {
+        }
 
+        if (msgObj.func == "createroom") {
 
-                sendMsg(conPool, msgObj, roomPool);
-
-            }
-
-        } catch (e) {
-            console.log(e.message);
-
-            let errorMsg = `{"type" : "error", "msg" : "${e.message}"}`;
-
-            conn.sendUTF(errorMsg);
+            createRoom(conn, roomPool).catch((e) => handleError(e, conn));
             
+        }
+
+
+        if (msgObj.func == "joinroom") {
+
+            joinRoom(conn, msgObj, roomPool).catch((e) => handleError(e, conn));
+
+        }
+
+        
+        if (msgObj.func == "sendmsg") {
+
+
+            sendMsg(conn, msgObj, roomPool).catch((e) => handleError(e, conn));
+
         }
 
     });

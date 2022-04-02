@@ -6,6 +6,11 @@ async function logIn(conn, msgObj, conPool) {
         throw Error("invalid user name");
     }
 
+
+    if (conPool[msgObj.username]) {
+        throw Error("user name is invalid");
+    }
+
     conn.username = msgObj.username;
 
     conPool[msgObj.username] = conn;
