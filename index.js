@@ -7,6 +7,9 @@ const fs = require('fs'),
     filePath = path.join(__dirname, 'chat.html');
 
 
+const genRoomId = require("./myModules/genRoomId");
+
+
 
 
 
@@ -47,16 +50,6 @@ const websocket = new WebSocketServer({
 let conPool = {}; // (name : con)
 
 let roomPool = {}; // (roomId : {name : con})
-
-function genRoomId () {
-    var result           = '';
-    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    var charactersLength = characters.length;
-    for ( var i = 0; i < 5; i++ ) {
-      result += characters.charAt(Math.floor(Math.random() * charactersLength));
-   }
-   return result;
-}
 
 
 
@@ -181,7 +174,7 @@ websocket.on("request", (req) => {
 
 
 
-port_num = process.env.PORT || 5000
+port_num = process.env.PORT || 3000
 
 app.listen(port_num);
 
