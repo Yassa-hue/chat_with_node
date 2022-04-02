@@ -42,10 +42,7 @@ const logIn = require("./myModules/logIn"),
 // });
 
 
-const httpsServer = https.createServer({
-    cert: fs.readFileSync('./cert/cert.pem'),
-    key: fs.readFileSync('./cert/key.pem')
-}, (req, res) => {
+const httpsServer = https.createServer({}, (req, res) => {
     console.log("there is a req on the server :)");
 
     fs.readFile(filePath, {encoding: 'utf-8'}, function(err,data){
