@@ -14,7 +14,10 @@ const logIn = require("./myModules/logIn"),
     joinRoom = require("./myModules/joinRoom"),
     sendMsg = require("./myModules/sendMsg"),
     handleError = require("./myModules/handleError"),
-    typing = require("./myModules/typing");
+    typing = require("./myModules/typing"),
+    createDbConn = require("./myModules/dbConn");
+
+
 
 
 
@@ -108,7 +111,9 @@ websocket.on("request", (req) => {
 
 
     
-    conn.on('message', (msg) => {
+    conn.on('message', async (msg) => {
+
+        dbConn = await createDbConn();
 
         console.log(msg.utf8Data);
 
@@ -117,7 +122,7 @@ websocket.on("request", (req) => {
         
         if (msgObj.func == "login") {
 
-            logIn(conn, msgObj, conPool).catch((e) => handleError(e, conn));
+            logIn(conn, msgObj, conPool, dbConn).catch((e) => handleError(e, conn));
             
         }
 
