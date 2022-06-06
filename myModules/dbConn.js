@@ -6,8 +6,8 @@ async function connectToDb() {
         host: process.env["PGHOST"],
         database: process.env["PGDATABASE"],
         password: process.env["PGPASSWORD"],
-        port: process.env["5432"],
-        ssl: true
+        port: process.env["PGPORT"],
+        ssl: {rejectUnauthorized : false}
     });
     
     
