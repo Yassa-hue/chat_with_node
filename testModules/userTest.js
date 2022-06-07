@@ -47,3 +47,40 @@ async function testLogIn () {
 }
 
 testLogIn();
+
+
+
+
+
+
+async function testInvalidSignUp(args) {
+    // to test invalid
+}
+
+
+async function testValidSignUp(args) {
+    try {
+        u = new user({email : args.email, password : args.password, username : args.username});
+        console.log(`PASSED test valid signup for ${(await u.signUp())}`);
+    } catch (e) {
+        console.log(`FAILED test valid login for ${args.email} errMsg ${e}`);
+    }
+}
+
+async function testSignUp () {
+
+    const vldTestSignup = [
+            {email : "t100@t.com", password : "12345678", username : "test100"},
+            {email : "t200@t.com", password : "12345678", username : "test200"},
+            // {email : "t7@t.com", password : "12345678"},
+        ];
+
+
+    vldTestSignup.forEach(async function (test) {
+        await testValidSignUp(test);
+    });
+    
+}
+
+
+testSignUp();
