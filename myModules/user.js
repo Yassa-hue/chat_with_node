@@ -1,4 +1,5 @@
-
+const connectToDb = require("./dbConn"),
+    jwd = require("jsonwebtoken");
 
 class user {
 
@@ -51,3 +52,6 @@ class user {
         
     }
 }
+
+
+module.exports = user;
