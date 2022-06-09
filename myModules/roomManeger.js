@@ -1,5 +1,6 @@
 const handleError = require("./handleError"),
-      genRoomId = require("./genRoomId");
+      genRoomId = require("./genRoomId"),
+      user = require("./user");
 
 class roomManeger {
 
@@ -16,35 +17,36 @@ class roomManeger {
     #webSocket
 
     /*
-        map of username and conn
+        map of useid and conn
     */
     #conPool
 
     /*
-        map of room id and map of username and conn
+        map of room id and map of userid and conn
     */
     #roomPool
 
 
 
+    /*
+        msg obj must have email and password
 
+        return the token
+    */
     async #logIn (conn, msgObj) {
 
+        let new_user = new user({email : msgObj.email, password : msgObj.password});
+        
+        const token = new_user.logIn();
 
-        if (msgObj.username == null || msgObj.username == "") {
-            throw Error("invalid user name");
-        }
+        conn.user = new_user;
+        
+        conn.userid = new_user.getUserId();
+
+        this.#conPool[new_user.getUserId()] = conn;
 
 
-        if (this.#conPool[msgObj.username]) {
-            throw Error("user name is invalid");
-        }
-
-        conn.username = msgObj.username;
-
-        this.#conPool[msgObj.username] = conn;
-
-        let retMsg = `{"type" : "login", "msg" : "user logged in", "username" : "${msgObj.username}"}`;
+        let retMsg = `{"type" : "login", "msg" : "user logged in", "token" : "${token}"}`;
 
         conn.sendUTF(retMsg);
 
@@ -54,9 +56,33 @@ class roomManeger {
 
 
 
+
+    /*
+
+        msg obj must have username, email and password
+
+    */
+
+    async #signUp(conn, msgObj) {
+
+        let new_user = new user({
+            username : msgObj.username,
+            email : msgObj.email,
+            password : msgObj.password
+        })
+
+        new_user.signUp();
+
+        this.#logIn(conn, msgObj);
+    }
+
+
+
+
+
     async #createRoom(conn) {
         
-        if (!conn.username) {
+        if (!conn.userid) {
 
             throw Error("you have to log in");
     
@@ -66,19 +92,19 @@ class roomManeger {
     
         this.#roomPool[randomRoomId] = {};
     
-        this.#roomPool[randomRoomId][conn.username] = conn;
+        this.#roomPool[randomRoomId][conn.userid] = conn;
     
         let retMsg = `{"type" : "roomid", "roomid" : "${randomRoomId}"}`;
     
         conn.sendUTF(retMsg);
     
-        console.log(`user ${conn.username} created room : ${randomRoomId}`);
+        console.log(`user ${conn.userid} created room : ${randomRoomId}`);
     }
 
     
     async #joinRoom(conn, msgObj) {
 
-        if (!conn.username) {
+        if (!conn.userid) {
 
             throw Error("you have to log in");
 
@@ -88,8 +114,8 @@ class roomManeger {
             throw Error("invalid room id");
         }
         
-        this.#roomPool[msgObj.roomid][conn.username] = conn;
-        console.log(`user ${conn.username} joint room : ${msgObj.roomid}`);
+        this.#roomPool[msgObj.roomid][conn.userid] = conn;
+        console.log(`user ${conn.userid} joint room : ${msgObj.roomid}`);
 
         let retMsg = `{"type" : "join", "msg" : "joined room"}`;
 
@@ -100,7 +126,7 @@ class roomManeger {
     
     async #sendMsg(conn, msgObj) {
 
-        if (!conn.username) {
+        if (!conn.userid) {
 
             throw Error("you have to log in");
 
@@ -125,7 +151,7 @@ class roomManeger {
         
         for (var c in room) {
 
-            if (c != conn.username) {
+            if (c != conn.userid) {
 
                 room[c].sendUTF(chatMsg);
 
@@ -153,8 +179,8 @@ class roomManeger {
         
             conn.on("close", () => {
                 
-                if (conn.username) {
-                    this.#conPool[conn.username] = null;
+                if (conn.userid) {
+                    this.#conPool[conn.userid] = null;
                 }
                 
                 console.log("closed !!")

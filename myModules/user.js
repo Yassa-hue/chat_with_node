@@ -75,6 +75,10 @@ class user {
         
     }
 
+    getUserId() {
+        return this.#userid;
+    }
+
 
     constructor (options) {
 
