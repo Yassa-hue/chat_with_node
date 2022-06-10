@@ -75,13 +75,13 @@ class room {
     }
 
 
-    async pushUser(user) {
-
+    pushUser(user) {
+        this.#users[new_user.getId()] = user;
     }
 
     
-    async popUser(userid) {
-
+    popUser(userid) {
+        this.#users[userid] = null;
     }
 
 

@@ -1,7 +1,7 @@
 const { Pool, Client } = require('pg');
 
 async function connectToDb() {
-    const client = new Client({
+    const pool = new Pool({
         user: process.env["PGUSER"],
         host: process.env["PGHOST"],
         database: process.env["PGDATABASE"],
@@ -11,9 +11,9 @@ async function connectToDb() {
     });
     
     
-    await client.connect();
+    await pool.connect();
     
-    return client;
+    return pool;
 
 }
 

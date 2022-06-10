@@ -2,7 +2,8 @@ const WebSocketServer = require('websocket').server;
 
 const roomManeger = require("./myModules/roomManeger"),
     httpServer = require("./myModules/httpServerProvider"),
-    httpsServer = require("./myModules/httpsServerProvider");
+    httpsServer = require("./myModules/httpsServerProvider"),
+    dbPool = require("./myModules/dbConn");
 
 
 

@@ -1,15 +1,15 @@
 
 
-const connectToDb = require("../myModules/dbConn");
+const getDbPool = require("../myModules/dbConn");
 
 
 
 // test db conn
 
-connectToDb().then((clnt) => {
+getDbPool().then((pool) => {
 
-    clnt.query("SELECT * FROM users").then((res) => {
-        console.log(res.rows);
-    }).catch((er) => console.log(er));
+    pool.query("SELECT NOW()").then((res) => {
+        console.log(res.rows[0]);
+    }).catch((e) => console.log(e));
 
 }).catch((er) => console.log(er));
