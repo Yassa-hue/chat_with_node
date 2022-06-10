@@ -8,6 +8,8 @@ class user {
     #email = ""
     #password = ""
 
+    #dbPool
+
 
     #validateEmail(_email) {
         return true;
@@ -31,8 +33,7 @@ class user {
 
         // get user from db
 
-        const dbConn = await connectToDb();
-        let res = await (await dbConn.query(`SELECT user_id, username FROM users WHERE email = '${this.#email}' AND password = '${this.#password}'`)).rows;
+        let res = await (await this.#dbPool.query(`SELECT user_id, username FROM users WHERE email = '${this.#email}' AND password = '${this.#password}'`)).rows;
 
         if (res.length == 0) {
             throw "Email or password is INVALID";
@@ -65,8 +66,7 @@ class user {
              throw "INVALID data";
          }
 
-        const dbConn = await connectToDb();
-        await dbConn.query(`INSERT INTO users(username, email, password) VALUES('${this.#username}', '${this.#email}', '${this.#password}')`);
+        await this.#dbPool.query(`INSERT INTO users(username, email, password) VALUES('${this.#username}', '${this.#email}', '${this.#password}')`);
 
         // logIn
         const token = await this.logIn();
@@ -86,6 +86,7 @@ class user {
         this.#email = options.email;
         this.#password = options.password;
         
+        this.#dbPool = options.dbPool;
     }
 }
 

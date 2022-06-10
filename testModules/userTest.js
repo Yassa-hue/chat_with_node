@@ -1,10 +1,12 @@
-const user = require("../myModules/user");
+const user = require("../myModules/user"),
+    getDbPool = require("../myModules/dbConn"),
+    crypto = require("crypto");
 
 
 async function testInvalidLogIn(args) {
     try {
-        u = new user({email : args.email, password : args.password});
-        console.log(`FAILED test invalid login for ${(await u.logIn())}`);
+        u = new user(args);
+        console.error(`FAILED test invalid login for ${(await u.logIn())}`);
     } catch (e) {
         console.log(`PASSED test invalid login for ${args.email}`);
     }
@@ -13,24 +15,24 @@ async function testInvalidLogIn(args) {
 
 async function testValidLogIn(args) {
     try {
-        u = new user({email : args.email, password : args.password});
+        u = new user(args);
         console.log(`PASSED test valid login for ${(await u.logIn())}`);
     } catch (e) {
-        console.log(`FAILED test valid login for ${args.email} errMsg ${e}`);
+        console.error(`FAILED test valid login for ${args.email} errMsg ${e}`);
     }
 }
 
-async function testLogIn () {
+async function testLogIn (_dbPool) {
 
     const vldTest = [
-            {email : "t1@t.com", password : "12345678"},
-            {email : "t2@t.com", password : "12345678"},
+            {email : "t1@t.com", password : "12345678", dbPool : _dbPool},
+            {email : "t2@t.com", password : "12345678", dbPool : _dbPool},
             // {email : "t7@t.com", password : "12345678"},
         ],
         inVldTest = [
-            {email : "t7@t.com", password : "12345678"},
-            {email : "t1@t.com"},
-            {password : "12345678"},
+            {email : "t7@t.com", password : "12345678", dbPool : _dbPool},
+            {email : "t1@t.com", dbPool : _dbPool},
+            {password : "12345678", dbPool : _dbPool},
             {},
             // {email : "t2@t.com", password : "12345678"}
         ];
@@ -46,7 +48,6 @@ async function testLogIn () {
     
 }
 
-testLogIn();
 
 
 
@@ -60,18 +61,18 @@ async function testInvalidSignUp(args) {
 
 async function testValidSignUp(args) {
     try {
-        u = new user({email : args.email, password : args.password, username : args.username});
+        u = new user(args);
         console.log(`PASSED test valid signup for ${(await u.signUp())}`);
     } catch (e) {
-        console.log(`FAILED test valid login for ${args.email} errMsg ${e}`);
+        console.error(`FAILED test valid signup for ${args.email} errMsg ${e}`);
     }
 }
 
-async function testSignUp () {
+async function testSignUp (_dbPool) {
 
     const vldTestSignup = [
-            {email : "t100@t.com", password : "12345678", username : "test100"},
-            {email : "t200@t.com", password : "12345678", username : "test200"},
+            {email : crypto.randomBytes(8).toString("hex") + "@g.com", password : "12345678", username : crypto.randomBytes(15).toString("hex"), dbPool : _dbPool},
+            {email : crypto.randomBytes(15).toString("hex") + "@g.com", password : "12345678", username : crypto.randomBytes(8).toString("hex"), dbPool : _dbPool},
             // {email : "t7@t.com", password : "12345678"},
         ];
 
@@ -82,5 +83,7 @@ async function testSignUp () {
     
 }
 
-
-testSignUp();
+getDbPool().then(async function (pool) {
+    await testSignUp(pool);
+    await testLogIn(pool);
+});

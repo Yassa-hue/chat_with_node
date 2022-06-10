@@ -16,6 +16,8 @@ class room {
     #msgs;
 
 
+    #dbPool;
+
 
     #roomId;
 
@@ -35,10 +37,8 @@ class room {
             throw "Invalid room name";
         }
 
-        const conn = await dbConn();
 
-
-        await conn.query(`INSERT INTO rooms(room_name) VALUES('${this.#roomName}')`);
+        await this.#dbPool.query(`INSERT INTO rooms(room_name) VALUES('${this.#roomName}')`);
 
     }
 
@@ -49,10 +49,8 @@ class room {
             throw "Invalid room name";
         }
 
-        const conn = await dbConn();
 
-
-        const res = await conn.query(`SELECT room_id FROM rooms WHERE room_name = '${this.#roomName}'`);
+        const res = await this.#dbPool.query(`SELECT room_id FROM rooms WHERE room_name = '${this.#roomName}'`);
 
 
         if (res.rowCount == 0) {
@@ -92,6 +90,7 @@ class room {
 
     constructor (args) {
         this.#roomName = args.roomname;
+        this.#dbPool = args.dbPool;
     }
 
 }
