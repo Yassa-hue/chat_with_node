@@ -4,7 +4,11 @@ const MIN_ROOM_NAME_LEN = 8;
 class room {
     
 
-    // map of {userId, user_conn}
+    /*
+        map of {userId, user_conn}
+
+        user_conn is a connection that have a user
+    */
 
     #users;
 
@@ -82,18 +86,37 @@ class room {
 
 
     pushUser(user) {
+        if (this.#users[new_user.getId()]) {
+            throw "user is already in the room";
+        }
+
+
+        const sql = `SELECT rool FROM join_room WHERE room_id = ${this.#roomId} AND user_id = ${user.user.getId()}`;
+
+        let res = await this.#dbPool.query(sql);
+
+        if (res.rowCount == 0) {
+            throw "user is not in this room";
+        }
+
+        user.rool = res.rows[0].rool;
+
         this.#users[new_user.getId()] = user;
     }
 
     
     popUser(userid) {
+        if (!this.#users[new_user.getId()]) {
+            throw "user is not in the room";
+        }
+
         this.#users[userid] = null;
     }
 
 
     async prodcastMsg(msg) {
         for (userid in this.#users) {
-            // this.#users[userid].send(msg);
+            this.#users[userid].send(msg);
         }
     }
 

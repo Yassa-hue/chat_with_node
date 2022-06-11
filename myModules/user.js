@@ -1,5 +1,4 @@
-const connectToDb = require("./dbConn"),
-    jwd = require("jsonwebtoken");
+const jwd = require("jsonwebtoken");
 
 class user {
 
