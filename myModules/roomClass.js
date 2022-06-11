@@ -1,11 +1,10 @@
-const dbConn = require("./dbConn");
 
 const MIN_ROOM_NAME_LEN = 8;
 
 class room {
     
 
-    // map of {userId, conn}
+    // map of {userId, user_conn}
 
     #users;
 
@@ -63,13 +62,22 @@ class room {
 
     }
 
-    async addUser(new_user) {
+    async addUser(userid) {
 
+        const sql = `INSERT INTO join_room(user_id, room_id, rool, join_at) VALUES(${userid}, ${this.#roomId}, 'member', NOW())`;
+
+        await this.#dbPool.query(sql);
+
+        
     }
 
 
     async removeUser(userid) {
+        const sql = `DELETE FROM join_room WHERE user_id = ${userid} AND room_id = ${this.#roomId}`;
 
+        await this.#dbPool.query(sql);
+
+        this.popUser(userid);
     }
 
 
@@ -84,7 +92,9 @@ class room {
 
 
     async prodcastMsg(msg) {
-
+        for (userid in this.#users) {
+            // this.#users[userid].send(msg);
+        }
     }
 
 
